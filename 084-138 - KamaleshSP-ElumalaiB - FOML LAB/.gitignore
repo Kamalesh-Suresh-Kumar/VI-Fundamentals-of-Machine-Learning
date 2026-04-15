@@ -20,9 +20,3 @@ __pycache__/
 dist/
 build/
 .vite/
-
-# ======================
-# OS Files
-# ======================
-.DS_Store
-Thumbs.db
