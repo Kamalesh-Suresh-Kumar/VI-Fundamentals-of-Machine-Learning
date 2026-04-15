@@ -26,8 +26,3 @@ build/
 # ======================
 .DS_Store
 Thumbs.db
-
-backend/
-ml-model/
-Project.md
-test_req.js
