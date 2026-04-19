@@ -15,9 +15,9 @@
 | Lab 6 | Face Recognition using SVM | Built a face recognition system using Support Vector Machine with feature extraction and classification |
 | Lab 7 | Decision Tree | Implemented decision tree classifier with preprocessing, feature encoding, and model evaluation |
 | Lab 8 | Boosting (Ensemble Learning) | Implemented boosting techniques (e.g., AdaBoost) to improve model performance using ensemble methods |
-| Lab 9 | K-Nearest Neighbors (KNN) | Implemented KNN algorithm for classification using distance metrics and evaluated model accuracy |
-| Lab 10 | K-Means Clustering | Implemented K-Means clustering for unsupervised learning and visualized cluster formation |
-| Lab 11 | Principal Component Analysis (PCA) | Applied PCA for dimensionality reduction and visualized transformed feature space |
+| Lab 9a | K-Nearest Neighbors (KNN) | Implemented KNN algorithm for classification using distance metrics and evaluated model accuracy |
+| Lab 9b | K-Means Clustering | Implemented K-Means clustering for unsupervised learning and visualized cluster formation |
+| Lab 10 | Principal Component Analysis (PCA) | Applied PCA for dimensionality reduction and visualized transformed feature space |
 
 ## Author
 **Team Member1:** Elumalai B<br>
