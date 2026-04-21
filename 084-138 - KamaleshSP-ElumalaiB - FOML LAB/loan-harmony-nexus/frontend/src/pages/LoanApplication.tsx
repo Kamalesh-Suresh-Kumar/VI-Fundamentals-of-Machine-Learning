@@ -32,6 +32,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { Slider } from "@/components/ui/slider";
 import { Textarea } from "@/components/ui/textarea";
 import Layout from "@/components/Layout";
 import { Separator } from "@/components/ui/separator";
@@ -64,8 +65,11 @@ const formSchema = z.object({
   }),
   
   // Loan Application Details
-  amount: z.string().refine((val) => !isNaN(Number(val)) && Number(val) > 0, {
-    message: "Loan amount must be a positive number",
+  amount: z.string().refine((val) => {
+    const num = Number(val);
+    return !isNaN(num) && num >= 5000 && num <= 10000000;
+  }, {
+    message: "Loan amount must be between ₹5,000 and ₹1,00,00,000",
   }),
   purpose: z.string().min(5, "Loan purpose is required"),
   term: z.string().refine((val) => !isNaN(Number(val)) && Number(val) > 0, {
@@ -120,6 +124,15 @@ const LoanApplication = () => {
       form.setValue("existingLoanPeriod", existingLoans.existingLoanPeriod.toString());
     }
   }, [user?.id, form, getExistingLoansCalculations]);
+
+  const formatCurrency = (amount: number) => {
+    return new Intl.NumberFormat('en-IN', {
+      style: 'currency',
+      currency: 'INR',
+      minimumFractionDigits: 0,
+      maximumFractionDigits: 0
+    }).format(amount);
+  };
 
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
     if (!user) return;
@@ -324,11 +337,40 @@ const LoanApplication = () => {
                         render={({ field }) => (
                           <FormItem>
                             <FormLabel>Loan Amount (₹)</FormLabel>
-                            <FormControl>
-                              <Input placeholder="25000" {...field} />
-                            </FormControl>
+                            <div className="space-y-4 pt-2">
+                              <FormControl>
+                                <Input 
+                                  placeholder="25000" 
+                                  type="number" 
+                                  {...field} 
+                                  onChange={(e) => field.onChange(e.target.value)}
+                                />
+                              </FormControl>
+                              <Slider
+                                value={[Number(field.value) || 0]}
+                                min={5000}
+                                max={1000000}
+                                step={5000}
+                                onValueChange={(val) => field.onChange(val[0].toString())}
+                                className="py-4"
+                              />
+                              <div className="flex flex-wrap gap-2">
+                                {[10000, 50000, 100000, 500000, 1000000].map((amt) => (
+                                  <Button
+                                    key={amt}
+                                    type="button"
+                                    variant={Number(field.value) === amt ? "default" : "outline"}
+                                    size="sm"
+                                    className="h-8 text-xs"
+                                    onClick={() => field.onChange(amt.toString())}
+                                  >
+                                    {formatCurrency(amt)}
+                                  </Button>
+                                ))}
+                              </div>
+                            </div>
                             <FormDescription>
-                              The amount you wish to borrow
+                              Select or enter an amount between ₹5,000 and ₹1,00,00,000
                             </FormDescription>
                             <FormMessage />
                           </FormItem>

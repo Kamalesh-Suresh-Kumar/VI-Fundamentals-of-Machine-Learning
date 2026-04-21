@@ -34,3 +34,15 @@ exports.updateLoan = async (req, res) => {
     res.status(500).json({ error: 'Failed to update loan' });
   }
 };
+
+exports.deleteLoan = async (req, res) => {
+  try {
+    const deletedLoan = await Loan.findOneAndDelete({ id: req.params.id });
+    if (!deletedLoan) {
+      return res.status(404).json({ error: 'Loan not found' });
+    }
+    res.json({ message: 'Loan deleted successfully' });
+  } catch (error) {
+    res.status(500).json({ error: 'Failed to delete loan' });
+  }
+};

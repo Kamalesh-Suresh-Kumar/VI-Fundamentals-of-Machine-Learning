@@ -161,7 +161,7 @@ const LenderDashboard = () => {
           </Card>
         </div>
 
-        <Tabs defaultValue="available" className="mb-6" onValueChange={setActiveTab}>
+        <Tabs value={activeTab} className="mb-6" onValueChange={setActiveTab}>
           <TabsList>
             <TabsTrigger value="available">Available Loans</TabsTrigger>
             <TabsTrigger value="my-loans">My Loans</TabsTrigger>
@@ -245,17 +245,40 @@ const LenderDashboard = () => {
                 <p className="text-gray-500 mt-1">
                   There are no loan applications matching your criteria at the moment.
                 </p>
+                <Button 
+                  className="bg-finance-secondary hover:bg-finance-primary mt-4"
+                  onClick={() => {
+                    setActiveTab("my-loans");
+                    window.scrollTo({ top: 0, behavior: 'smooth' });
+                  }}
+                >
+                  View My Approved Loans
+                </Button>
               </div>
             ) : (
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {filteredLoans.map((loan) => (
-                  <LoanCard
-                    key={loan.id}
-                    loan={loan}
-                    actionLabel="View Application"
-                    onAction={() => navigate(`/loan/${loan.id}`)}
-                  />
-                ))}
+              <div className="space-y-8">
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                  {filteredLoans.map((loan) => (
+                    <LoanCard
+                      key={loan.id}
+                      loan={loan}
+                      actionLabel="View Application"
+                      onAction={() => navigate(`/loan/${loan.id}`)}
+                    />
+                  ))}
+                </div>
+                <div className="flex justify-center pt-4">
+                  <Button 
+                    className="bg-finance-secondary hover:bg-finance-primary flex items-center gap-2 group"
+                    onClick={() => {
+                      setActiveTab("my-loans");
+                      window.scrollTo({ top: 0, behavior: 'smooth' });
+                    }}
+                  >
+                    View My Approved Loans
+                    <ChevronRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
+                  </Button>
+                </div>
               </div>
             )}
           </TabsContent>
@@ -269,23 +292,39 @@ const LenderDashboard = () => {
                   You haven't approved any loan applications yet.
                 </p>
                 <Button 
-                  variant="outline" 
-                  className="mt-4"
-                  onClick={() => setActiveTab("available")}
+                  className="bg-finance-secondary hover:bg-finance-primary mt-4"
+                  onClick={() => {
+                    setActiveTab("available");
+                    window.scrollTo({ top: 0, behavior: 'smooth' });
+                  }}
                 >
                   Browse Available Loans
                 </Button>
               </div>
             ) : (
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {filteredLoans.map((loan) => (
-                  <LoanCard
-                    key={loan.id}
-                    loan={loan}
-                    actionLabel="View Details"
-                    onAction={() => navigate(`/loan/${loan.id}`)}
-                  />
-                ))}
+              <div className="space-y-8">
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                  {filteredLoans.map((loan) => (
+                    <LoanCard
+                      key={loan.id}
+                      loan={loan}
+                      actionLabel="View Details"
+                      onAction={() => navigate(`/loan/${loan.id}`)}
+                    />
+                  ))}
+                </div>
+                <div className="flex justify-center pt-4">
+                    <Button 
+                      className="bg-finance-secondary hover:bg-finance-primary flex items-center gap-2 group"
+                      onClick={() => {
+                        setActiveTab("available");
+                        window.scrollTo({ top: 0, behavior: 'smooth' });
+                      }}
+                    >
+                      Browse More Available Loans
+                      <ChevronRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
+                    </Button>
+                </div>
               </div>
             )}
           </TabsContent>

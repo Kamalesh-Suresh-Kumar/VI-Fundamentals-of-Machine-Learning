@@ -91,54 +91,91 @@ export const LoanProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [loanOffers, setLoanOffers] = useState<LoanOffer[]>([]);
   const [payments, setPayments] = useState<PaymentRecord[]>([]);
 
-  // Load existing loan data from localStorage
+  // Load existing loan data from localStorage and API
   useEffect(() => {
-    const storedApplications = JSON.parse(localStorage.getItem('loanApplications') || '[]');
-    const storedOffers = JSON.parse(localStorage.getItem('loanOffers') || '[]');
-    const storedPayments = JSON.parse(localStorage.getItem('payments') || '[]');
-    
-    if (user) {
-      // Check if we're switching roles
-      const isRoleSwitch = localStorage.getItem('role_switch') === 'true';
-      if (isRoleSwitch) {
-        localStorage.removeItem('role_switch');
-      }
+    const initializeData = async () => {
+      let storedApplications = JSON.parse(localStorage.getItem('loanApplications') || '[]');
+      const storedOffers = JSON.parse(localStorage.getItem('loanOffers') || '[]');
+      const storedPayments = JSON.parse(localStorage.getItem('payments') || '[]');
       
-      // Filter applications based on user role
-      if (user.currentRole === 'borrower') {
-        // As a borrower, only show applications created by this user
-        setBorrowerApplications(storedApplications.filter((app: LoanApplication) => app.borrowerId === user.id));
-        setLenderApplications([]);
-      } else if (user.currentRole === 'lender') {
-        // As a lender, show all applications EXCEPT those where this user is the borrower or the application is canceled
-        setLenderApplications(storedApplications.filter((app: LoanApplication) => 
-          app.borrowerId !== user.id && app.status !== 'canceled' // Filter out loans where the user is the borrower or the loan is canceled
-        ));
-        setBorrowerApplications([]);
-      } else {
-        // Admin sees all applications
-        setBorrowerApplications(storedApplications);
-        setLenderApplications(storedApplications);
-      }
-      
-      // Filter offers based on user role
-      setLoanOffers(storedOffers.filter((offer: LoanOffer) => 
-        user.currentRole === 'lender' ? offer.lenderId === user.id : 
-        user.currentRole === 'borrower' ? 
-          borrowerApplications.some(app => app.id === offer.loanApplicationId) :
-          true // Admin sees all offers
-      ));
+      // Try to fetch from backend API
+      try {
+        const response = await fetch("http://localhost:5000/api/loans");
+        if (response.ok) {
+          const apiLoans = await response.json();
+          if (apiLoans && Array.isArray(apiLoans)) {
+            // Map API data to our frontend interface
+            const mappedApiLoans = apiLoans.map((loan: any) => ({
+              ...loan,
+              id: loan.id || loan._id,
+              amount: loan.amount || loan.loanAmount,
+              purpose: loan.purpose || loan.loanType,
+              term: loan.term || loan.durationMonths,
+              status: loan.status || 'pending',
+              createdAt: loan.createdAt || new Date().toISOString(),
+              updatedAt: loan.updatedAt || new Date().toISOString()
+            }));
 
-      // Filter payments based on user role
-      setPayments(storedPayments.filter((payment: PaymentRecord) => 
-        payment.fromUserId === user.id || payment.toUserId === user.id
-      ));
-    } else {
-      setBorrowerApplications([]);
-      setLenderApplications([]);
-      setLoanOffers([]);
-      setPayments([]);
-    }
+            // Merge API loans into storedApplications, preferring API data for matching IDs
+            const apiIds = new Set(mappedApiLoans.map((l: any) => l.id));
+            storedApplications = [
+              ...mappedApiLoans,
+              ...storedApplications.filter((l: any) => !apiIds.has(l.id))
+            ];
+            
+            // Sync back to localStorage
+            localStorage.setItem('loanApplications', JSON.stringify(storedApplications));
+          }
+        }
+      } catch (error) {
+        console.error("Failed to sync with backend API:", error);
+      }
+      
+      if (user) {
+        // Check if we're switching roles
+        const isRoleSwitch = localStorage.getItem('role_switch') === 'true';
+        if (isRoleSwitch) {
+          localStorage.removeItem('role_switch');
+        }
+        
+        // Filter applications based on user role
+        if (user.currentRole === 'borrower') {
+          // As a borrower, only show applications created by this user
+          setBorrowerApplications(storedApplications.filter((app: LoanApplication) => app.borrowerId === user.id));
+          setLenderApplications([]);
+        } else if (user.currentRole === 'lender') {
+          // As a lender, show all applications EXCEPT those where this user is the borrower or the application is canceled
+          setLenderApplications(storedApplications.filter((app: LoanApplication) => 
+            app.borrowerId !== user.id && app.status !== 'canceled'
+          ));
+          setBorrowerApplications([]);
+        } else {
+          // Admin sees all applications
+          setBorrowerApplications(storedApplications);
+          setLenderApplications(storedApplications);
+        }
+        
+        // Filter offers based on user role
+        setLoanOffers(storedOffers.filter((offer: LoanOffer) => 
+          user.currentRole === 'lender' ? offer.lenderId === user.id : 
+          user.currentRole === 'borrower' ? 
+            storedApplications.some((app: LoanApplication) => app.id === offer.loanApplicationId && app.borrowerId === user.id) :
+            true // Admin sees all offers
+        ));
+
+        // Filter payments based on user role
+        setPayments(storedPayments.filter((payment: PaymentRecord) => 
+          payment.fromUserId === user.id || payment.toUserId === user.id
+        ));
+      } else {
+        setBorrowerApplications([]);
+        setLenderApplications([]);
+        setLoanOffers([]);
+        setPayments([]);
+      }
+    };
+
+    initializeData();
   }, [user, user?.currentRole]);
 
   const createLoanApplication = async (application: Omit<LoanApplication, 'id' | 'createdAt' | 'updatedAt' | 'status' | 'monthlyPayment' | 'paidMonths'>) => {
@@ -310,10 +347,44 @@ export const LoanProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   const cancelLoanApplication = async (id: string) => {
-    // Update loan application status to canceled
-    await updateLoanApplication(id, { status: 'canceled' });
+    const loan = getLoanApplication(id);
+    if (!loan) return;
+
+    if (loan.status === 'pending') {
+      // If it's still pending, completely remove it from the database
+      // Update local storage
+      const storedApplications = JSON.parse(localStorage.getItem('loanApplications') || '[]');
+      const updatedApplications = storedApplications.filter((app: LoanApplication) => app.id !== id);
+      localStorage.setItem('loanApplications', JSON.stringify(updatedApplications));
+      
+      // Update local state
+      setBorrowerApplications(prev => prev.filter(app => app.id !== id));
+      setLenderApplications(prev => prev.filter(app => app.id !== id));
+
+      // Delete from backend
+      try {
+        await fetch(`http://localhost:5000/api/loans/${id}`, {
+          method: "DELETE",
+        });
+      } catch (error) {
+        console.error("Failed to delete loan from backend database:", error);
+      }
+
+      toast({
+        title: "Loan application removed",
+        description: `Application #${id.slice(0, 6)} has been deleted from the system`,
+      });
+    } else {
+      // If it was already approved/rejected, just mark as canceled for record keeping
+      await updateLoanApplication(id, { status: 'canceled' });
+      
+      toast({
+        title: "Loan application canceled",
+        description: `Application #${id.slice(0, 6)} has been marked as canceled`,
+      });
+    }
     
-    // Delete all related loan offers
+    // Delete all related loan offers regardless
     const relatedOffers = loanOffers.filter(offer => offer.loanApplicationId === id);
     const storedOffers = JSON.parse(localStorage.getItem('loanOffers') || '[]');
     const updatedOffers = storedOffers.filter((offer: LoanOffer) => offer.loanApplicationId !== id);
@@ -321,11 +392,6 @@ export const LoanProvider: React.FC<{ children: React.ReactNode }> = ({ children
     
     // Update local state
     setLoanOffers(prev => prev.filter(offer => offer.loanApplicationId !== id));
-    
-    toast({
-      title: "Loan application canceled",
-      description: `Application #${id.slice(0, 6)} and all related offers have been canceled`,
-    });
   };
 
   const predictCreditReliability = async (borrowerId: string): Promise<{ isReliable: boolean; score: number; }> => {

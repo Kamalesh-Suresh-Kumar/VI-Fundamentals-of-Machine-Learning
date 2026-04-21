@@ -453,7 +453,8 @@ const LoanDetail = () => {
                             <Input 
                               type="number" step="0.01" 
                               value={mlInputs.Debt_to_Income_Ratio} 
-                              onChange={(e) => setMlInputs({...mlInputs, Debt_to_Income_Ratio: parseFloat(e.target.value) || 0})}
+                              readOnly
+                              className="bg-gray-50 cursor-not-allowed"
                             />
                           </div>
                           <div>
@@ -468,7 +469,7 @@ const LoanDetail = () => {
                           </div>
                           <div>
                             <label className="text-sm font-medium">Current Loans</label>
-                            <Select value={mlInputs.Current_Loans} onValueChange={(v) => setMlInputs({...mlInputs, Current_Loans: v})}>
+                            <Select value={mlInputs.Current_Loans} disabled>
                               <SelectTrigger><SelectValue/></SelectTrigger>
                               <SelectContent>
                                 <SelectItem value="No">No</SelectItem>
