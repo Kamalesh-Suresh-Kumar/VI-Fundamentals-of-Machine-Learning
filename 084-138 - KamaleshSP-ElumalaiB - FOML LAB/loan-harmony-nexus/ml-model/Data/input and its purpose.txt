@@ -35,7 +35,8 @@ Multiple income sources → more stable
 📉 3. Existing Financial Burden
 Inputs:
 Current_Loans
-Debt_to_Income_Ratio
+Debt_to_Income_Ratio (DTI)
+Formula: DTI = (Total Monthly Debt Payments / Gross Monthly Income) * 100
 Purpose:
 
 👉 Measure financial stress

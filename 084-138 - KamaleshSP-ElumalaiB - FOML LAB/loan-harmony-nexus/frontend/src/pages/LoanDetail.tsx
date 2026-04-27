@@ -83,15 +83,28 @@ const LoanDetail = () => {
     Behavioral_Data: 'Neutral',
     Current_Loans: 'No',
     Sources_of_Income: 'Primary',
-    Debt_to_Income_Ratio: 0.30
+    Debt_to_Income_Ratio: 0.0
   });
 
   useEffect(() => {
     if (loan) {
-      // Auto-calculate Debt to Income Ratio
+      // Auto-calculate Debt to Income Ratio based on formula: (Total Monthly Debt Payments / Gross Monthly Income) * 100
       let dti = 0;
-      if (loan.monthlyIncome && loan.monthlyExpenses) {
-        dti = parseFloat((loan.monthlyExpenses / loan.monthlyIncome).toFixed(2));
+      if (loan.monthlyIncome && loan.monthlyIncome > 0) {
+        let totalMonthlyDebt = 0;
+        
+        // 1. Existing monthly debt
+        if (loan.existingLoanAmount && loan.existingLoanPeriod && loan.existingLoanPeriod > 0) {
+          totalMonthlyDebt += (loan.existingLoanAmount / loan.existingLoanPeriod);
+        }
+        
+        // 2. Proposed new loan monthly debt (approximation using principal / term)
+        if (loan.amount && loan.term && loan.term > 0) {
+          totalMonthlyDebt += (loan.amount / loan.term);
+        }
+        
+        // Calculate DTI percentage
+        dti = parseFloat(((totalMonthlyDebt / loan.monthlyIncome) * 100).toFixed(2));
       }
 
       // Auto-calculate Current Loans from history
@@ -153,7 +166,7 @@ const LoanDetail = () => {
         Monthly_Income: loan.monthlyIncome || 30000,
         Sources_of_Income: mlInputs.Sources_of_Income,
         Current_Loans: mlInputs.Current_Loans,
-        Debt_to_Income_Ratio: mlInputs.Debt_to_Income_Ratio,
+        Debt_to_Income_Ratio: parseFloat((mlInputs.Debt_to_Income_Ratio / 100).toFixed(4)),
         Property_Ownership: mapProperty(loan.propertyDetails?.type),
         Employment_Status: mapEmploymentStatus(loan.employmentStatus),
         Job_Tenure_Work_Experience: loan.yearsEmployed || 2,
@@ -449,7 +462,7 @@ const LoanDetail = () => {
                             </Select>
                           </div>
                           <div>
-                            <label className="text-sm font-medium">Debt to Income Ratio</label>
+                            <label className="text-sm font-medium">Debt to Income Ratio (%)</label>
                             <Input 
                               type="number" step="0.01" 
                               value={mlInputs.Debt_to_Income_Ratio} 
