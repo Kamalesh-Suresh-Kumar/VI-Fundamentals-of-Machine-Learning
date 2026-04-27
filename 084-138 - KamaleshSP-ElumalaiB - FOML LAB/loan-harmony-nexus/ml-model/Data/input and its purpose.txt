@@ -155,7 +155,3 @@ Spending patterns
 🧾 Final Answer
 
 👉 Each input represents a different dimension of financial risk
-
-Together they answer:
-
-Can this person repay the loan safely?
