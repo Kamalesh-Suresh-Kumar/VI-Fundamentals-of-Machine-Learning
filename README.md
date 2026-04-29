@@ -1,6 +1,8 @@
 # Fundamentals of Machine Learning 
 ## Semister: VI
 
+---
+
 ## Lab Index
 
 | Lab No | Title | Description |
@@ -18,6 +20,15 @@
 | Lab 9a | K-Nearest Neighbors (KNN) | Implemented KNN algorithm for classification using distance metrics and evaluated model accuracy |
 | Lab 9b | K-Means Clustering | Implemented K-Means clustering for unsupervised learning and visualized cluster formation |
 | Lab 10 | Principal Component Analysis (PCA) | Applied PCA for dimensionality reduction and visualized transformed feature space |
+
+## Project Utilities & Assets
+
+| File            | Type          | Description                                                         |
+| --------------- | ------------- | ------------------------------------------------------------------- |
+| `FOML-QR.py`    | Python Script | Generates a QR code for quick access to the project repository link |
+| `github_qr.png` | Image Asset   | QR code image that redirects users to the GitHub repository         |
+
+---
 
 ## Author
 **Team Member1:** Elumalai B<br>
