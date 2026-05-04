@@ -1,0 +1,70 @@
+=========================================================
+LOAN HARMONY NEXUS - SYSTEM ARCHITECTURE & PROJECT REPORT
+=========================================================
+
+1. EXECUTIVE SUMMARY
+---------------------------------------------------------
+Loan Harmony Nexus is an AI-powered lending platform designed to streamline loan applications and provide lenders with data-driven approval decisions. The platform leverages a modern microservice-oriented architecture, combining a MERN (MongoDB, Express.js, React, Node.js) stack with a dedicated Python FastAPI service that utilizes machine learning for robust risk assessment.
+
+2. HIGH-LEVEL ARCHITECTURE DESIGN
+---------------------------------------------------------
+The system is divided into three distinct modules:
+- Frontend Client (React + Vite + TypeScript)
+- Backend REST API (Node.js + Express + MongoDB)
+- ML Risk Engine (Python + FastAPI)
+
+These modules communicate over HTTP/REST protocols, ensuring a decoupled, scalable, and maintainable architecture.
+
+3. DETAILED COMPONENT ANALYSIS
+---------------------------------------------------------
+A. Frontend Client (/frontend)
+- Core Technologies: React 18, Vite, TypeScript
+- Styling & UI: Tailwind CSS, Shadcn UI, Radix UI, Lucide React
+- Routing & State: React Router DOM, React Hook Form, Custom Contexts (LoanContext, AuthContext)
+- Visualizations: Recharts, Embla Carousel
+- Key Features:
+  - Role-based Access Control (RBAC) with specific dashboards for Borrowers, Lenders, and Admins.
+  - Multi-step dynamic forms for loan application.
+  - Real-time ML prediction visualizations for Lenders.
+
+B. Backend REST API (/backend)
+- Core Technologies: Node.js, Express.js
+- Database: MongoDB accessed via Mongoose ORM
+- Security: bcryptjs, JWT authentication, CORS
+- Key Components:
+  - Controllers (authController.js, loanController.js, mlController.js, userController.js) handling business logic.
+  - Models (User.js, loan.js, AdminActivity.js) mapping to MongoDB schemas.
+  - Routes (auth.js, loanRoute.js, mlRoutes.js) serving as API endpoints.
+  - OTP Server: A secondary mini-server (Port 5001) handling OTP email verification independently.
+
+C. ML Risk Engine Service (/ml-model)
+- Core Technologies: Python 3.9+, FastAPI, Uvicorn, Joblib
+- Machine Learning Stack: Scikit-Learn, XGBoost, CatBoost, Pandas
+- Functionality:
+  - Exposes a `/predict` endpoint to evaluate loan applications.
+  - Processes numerical and categorical features using loaded metadata, standard scalers, and encoders.
+  - Evaluates applications using an ensemble methodology (Logistic Regression, Random Forest, XGBoost, CatBoost).
+  - Returns probability metrics and binary decisions (threshold > 0.6) for lender review.
+
+4. SYSTEM COMMUNICATION FLOW (For Diagram Design)
+---------------------------------------------------------
+1. User Interaction: The user (Borrower/Lender) interacts with the Frontend Application (Vite/React).
+2. Authentication & Data Fetching: 
+   - Frontend sends HTTP requests to the Backend REST API (Express on Port 5000).
+   - Backend performs authentication (JWT) and reads/writes to MongoDB (Atlas/Local).
+   - OTP verifications are routed or handled through the independent OTP server (Port 5001).
+3. Risk Assessment Flow:
+   - When a Lender requests risk evaluation on a loan, the Frontend triggers a request to the Backend.
+   - The Backend acts as a secure intermediary and forwards the applicant's financial features to the ML Risk Engine (FastAPI on Port 8000) via the `/predict` endpoint.
+   - The ML Engine processes the data using Pandas, applies trained models (XGBoost, CatBoost, etc.), and returns an evaluation matrix.
+   - Backend formats and responds to the Frontend, which then renders analytical charts (Recharts) for the Lender.
+
+5. INFRASTRUCTURE & DEPLOYMENT CONSIDERATIONS
+---------------------------------------------------------
+- Frontend: Capable of running natively via Vite (npm run dev).
+- Backend: Main server runs on Port 5000, OTP server runs on Port 5001. Requires a MongoDB connection string.
+- ML Service: Runs on Python using Uvicorn (Port 8000). Model assets (`all_loan_prediction_assets.pkl`) are loaded into memory on startup for fast, stateless predictions.
+
+=========================================================
+END OF REPORT
+=========================================================
