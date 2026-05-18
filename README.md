@@ -25,8 +25,14 @@
 
 | File            | Type          | Description                                                         |
 | --------------- | ------------- | ------------------------------------------------------------------- |
-| `FOML-QR.py`    | Python Script | Generates a QR code for quick access to the project repository link |
-| `github_qr.png` | Image Asset   | QR code image that redirects users to the GitHub repository         |
+| `084 - FOML-QR.py`    | Python Script | Generates a QR code for quick access to the project repository link |
+| `084 - github_qr.png` | Image Asset   | QR code image that redirects users to the GitHub repository         |
+| `138 - FOML-QR.py`    | Python Script | Generates a QR code for quick access to the project repository link |
+| `138 - github_qr.png` | Image Asset   | QR code image that redirects users to the GitHub repository         |
+| `084 - FOML Observation.docx`    | Word File | Document of Lab observation |
+| `084 - FOML Observation.pdf` | PDF File   | PDF of Lab observation         |
+| `138 - FOML Observation.docx`    | Word File | Document of Lab observation |
+| `138 - FOML Observation.pdf` | PDF File   | PDF of Lab observation         |
 
 ---
 
