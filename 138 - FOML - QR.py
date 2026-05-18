@@ -40,6 +40,6 @@ text_y = height + (60 - text_height) // 2
 draw.text((text_x, text_y), text, fill="black", font=font)
 
 # --- SAVE ---
-new_img.save("github_qr.png")
+new_img.save("138 - github_qr.png")
 
-print("QR Code saved as github_qr.png")
+print("QR Code saved as 138 - github_qr.png")
